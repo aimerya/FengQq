@@ -1,0 +1,9 @@
+C:\Users\原野\source\repos\谦谦のC#\Homework1\CalculationWin\CalculationWin\obj\Debug\CalculationWin.csprojAssemblyReference.cache
+C:\Users\原野\source\repos\谦谦のC#\Homework1\CalculationWin\CalculationWin\obj\Debug\CalculationWin.CalculationWin.resources
+C:\Users\原野\source\repos\谦谦のC#\Homework1\CalculationWin\CalculationWin\obj\Debug\CalculationWin.Properties.Resources.resources
+C:\Users\原野\source\repos\谦谦のC#\Homework1\CalculationWin\CalculationWin\obj\Debug\CalculationWin.csproj.GenerateResource.cache
+C:\Users\原野\source\repos\谦谦のC#\Homework1\CalculationWin\CalculationWin\bin\Debug\CalculationWin.exe.config
+C:\Users\原野\source\repos\谦谦のC#\Homework1\CalculationWin\CalculationWin\bin\Debug\CalculationWin.exe
+C:\Users\原野\source\repos\谦谦のC#\Homework1\CalculationWin\CalculationWin\bin\Debug\CalculationWin.pdb
+C:\Users\原野\source\repos\谦谦のC#\Homework1\CalculationWin\CalculationWin\obj\Debug\CalculationWin.exe
+C:\Users\原野\source\repos\谦谦のC#\Homework1\CalculationWin\CalculationWin\obj\Debug\CalculationWin.pdb
