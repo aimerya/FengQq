@@ -1,0 +1,11 @@
+C:\Users\原野\source\repos\谦谦のC#\Homework4\Homework4\bin\Debug\netcoreapp3.1\Homework4.exe
+C:\Users\原野\source\repos\谦谦のC#\Homework4\Homework4\bin\Debug\netcoreapp3.1\Homework4.deps.json
+C:\Users\原野\source\repos\谦谦のC#\Homework4\Homework4\bin\Debug\netcoreapp3.1\Homework4.runtimeconfig.json
+C:\Users\原野\source\repos\谦谦のC#\Homework4\Homework4\bin\Debug\netcoreapp3.1\Homework4.runtimeconfig.dev.json
+C:\Users\原野\source\repos\谦谦のC#\Homework4\Homework4\bin\Debug\netcoreapp3.1\Homework4.dll
+C:\Users\原野\source\repos\谦谦のC#\Homework4\Homework4\bin\Debug\netcoreapp3.1\Homework4.pdb
+C:\Users\原野\source\repos\谦谦のC#\Homework4\Homework4\obj\Debug\netcoreapp3.1\Homework4.csprojAssemblyReference.cache
+C:\Users\原野\source\repos\谦谦のC#\Homework4\Homework4\obj\Debug\netcoreapp3.1\Homework4.AssemblyInfoInputs.cache
+C:\Users\原野\source\repos\谦谦のC#\Homework4\Homework4\obj\Debug\netcoreapp3.1\Homework4.AssemblyInfo.cs
+C:\Users\原野\source\repos\谦谦のC#\Homework4\Homework4\obj\Debug\netcoreapp3.1\Homework4.dll
+C:\Users\原野\source\repos\谦谦のC#\Homework4\Homework4\obj\Debug\netcoreapp3.1\Homework4.pdb
