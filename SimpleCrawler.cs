@@ -1,117 +1,179 @@
 ﻿using System;
 using System.Collections;
-using System.IO;
-using System.Net;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Linq;
-using System.Collections.Generic;
+using System.IO;
+using System.Net;
 using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace Homework9
+namespace SimpleCrawler
 {
     public class SimpleCrawler
     {
-        public string StartUrl { get; set; }
-        public Hashtable Urls { get; set; }
-        public event InformEventHandler Inform;
-        public int Count { get; set; }
+        public event Action<SimpleCrawler> CrawlerStopped;
+        public event Action<SimpleCrawler, string, string> PageDownloaded;
+
+        //所有已下载和待下载的URL
+        private Hashtable Url = new Hashtable();
+        //数目
+        private int count = 0;        
+        //等待队列
+        private Queue<string> wait = new Queue<string>();
+        //URL检测表达式，用于在HTML文本中查找URL
+        private readonly string urlDetectRegex = @"(href|HREF)\s*=\s*[""'](?<u>[^""'#>]+)[""']";
+        //URL解析表达式
+        public static readonly string urlParseRegex = @"^(?<location>https?://(?<host>[\w\d.]+)(:\d+)?($|/))([\w\d]+/)*(?<file>[^#?]*)";
+        public string HostFilter { get; set; }
+        public string StartURL { get; set; }
+        public string FileFilter { get; set; }        
+        public int MaxPage { get; set; }
+
+        private void Crawl()
+        {
+            while (true)
+            {
+                string current = null;
+                foreach (string url in Url.Keys)
+                {
+                    //判断是否已下载
+                    if ((bool)Url[url])
+                        continue;
+                    current = url;
+                }
+                if (current == null || count > 10)
+                {
+                    break;
+                }
+                Console.WriteLine("正在爬行：" + current);
+                string html = DownLoad(current);
+                //修改状态
+                Url[current] = true;
+                count++;
+                Parse(html, (string)Url[current]);
+                Console.WriteLine("Over");
+            }
+        }
         public SimpleCrawler()
         {
-            Count = 0;
-            Urls = new Hashtable();
+            MaxPage = 20;
         }
 
         public void Start()
         {
-            try
+            Url.Clear();        
+            wait.Clear();        
+            wait.Enqueue(StartURL);      
+            while ( wait.Count > 0 && count < MaxPage)
             {
-                Urls.Add(StartUrl, false);
-            }
-            catch (ArgumentException e)
-            {
-                Inform(this, new InformEventArgs() { 
-                    Url = StartUrl, Message = "已存在" });
-            }
-
-            while (true)
-            {
-                string current = null;
-                foreach (string url in Urls.Keys)
+                string u = wait.Dequeue();
+                try
                 {
-                    if ((bool)Urls[url])
-                    {
-                        continue;
-                        current = url;
-                    }
+                    string h = DownLoad(u);
+                    Url[u] = true;
+                    PageDownloaded(this, u, "success");
+                    Parse(h, u);
                 }
-                if (Count > 10||current == null ) 
-                    break;
-                
-                string html = DownLoad(current); 
-                Urls[current] = true;
-                Count++;
-
-                Parse(html, current);
+                catch (Exception e)
+                {
+                    PageDownloaded(this, u, "Error:" + e.Message);
+                }
+                count++;
             }
-            Inform(this, new InformEventArgs() { 
-                Url = null, Message = "Over" });
+            CrawlerStopped(this);
         }
 
-        public string DownLoad(string url)
+        //下载
+        public string DownLoad(string str)
         {
             try
             {
-                WebClient webClient = new WebClient();
-                webClient.Encoding = Encoding.UTF8;
-                string html = webClient.DownloadString(url);
-                string fileName = Count.ToString();
+                WebClient wC = new WebClient();
+                wC.Encoding = Encoding.UTF8;
+                string html = wC.DownloadString(str);
+                string fileName = count.ToString();
                 File.WriteAllText(fileName, html, Encoding.UTF8);
                 return html;
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Inform(this, new InformEventArgs() 
-                { 
-                    Url = url, Message = ex.Message 
-                });
+                Console.WriteLine(e.Message);
                 return "";
             }
         }
-
-        private void Parse(string h, string u)
+        static private string FixUrl(string u, string baseU)
         {
-            string Ref = @"(href|HREF)[]*=[]*[""'][^""'#>]+[""']";
-            MatchCollection matches = new Regex(Ref).Matches(h);
-            foreach (Match match in matches)
+            if (u.StartsWith("/"))
             {
-                Ref = match.Value.Substring(match.Value.IndexOf('=') + 1).Trim('"', '\"', '#', '>');
-                if (Ref.Length == 0) 
+                Match m = Regex.Match(baseU, urlParseRegex);
+                String location = m.Groups["location"].Value;
+                return location.EndsWith("/") ? location + u.Substring(1) : location + u;
+            }
+
+            if (u.StartsWith("//"))
+            {
+                return "http:" + u;
+            }
+
+            if (u.Contains("://"))
+            {
+                return u;
+            }
+            if (u.StartsWith("./"))
+            {
+                return FixUrl(u.Substring(2), baseU);
+            }
+            if (u.StartsWith("../"))
+            {
+                u = u.Substring(3);
+                int idx = baseU.LastIndexOf('/');
+                return FixUrl(u, baseU.Substring(0, idx));
+            }
+            int end = baseU.LastIndexOf("/");
+            return baseU.Substring(0, end) + "/" + u;
+        }
+
+
+        private void Parse(string html,string pageurl)
+        {
+            var matches = new Regex(urlDetectRegex).Matches(html);   
+            foreach (Match match in matches)                         
+            {
+                string link = match.Groups["u"].Value;        
+                if ( link == "" || link == null) 
+                {
                     continue;
-                Uri uri = new Uri(u);
-                string location = uri.Scheme + "://" + uri.Host;
-                if (Regex.IsMatch(Ref, "^[//]"))
-                {
-                    Ref = uri.Scheme + ":" + Ref;
                 }
-                if (Regex.IsMatch(Ref, "^[/]"))
+                link = FixUrl(link, pageurl);        
+                Match linkUrlMatch = Regex.Match(link, urlParseRegex);
+                string host = linkUrlMatch.Groups["host"].Value;        
+                string file = linkUrlMatch.Groups["file"].Value;       
+                if (file == "")                                      
+                    file = "index.h";
+                if (!Url.Contains(link) && Regex.IsMatch(file, FileFilter) && Regex.IsMatch(host, HostFilter))        //如果过滤成功且linkUrl不在urls中
                 {
-                    Ref = location + Ref;
+                    wait.Enqueue(link);       
+                    Url[link] = false;        
                 }
-                if (!Regex.IsMatch(Ref, "^(http|HTTP)"))
-                {
-                    Ref = u + "/" + Ref;
-                }
-                if (!Regex.IsMatch(Ref, location)) { continue; }
-                if (Urls[Ref] == null) Urls[Ref] = false;
             }
         }
-    }
-    public delegate void InformEventHandler(object o, InformEventHandler e);
-    public class InformEventArgs : EventArgs
-    {
-        public string Url { get; set; }
-        public string Message { get; set; }
+
+        static void Main(string[] args)
+        {
+            SimpleCrawler craw = new SimpleCrawler();
+            string startUrl = Console.ReadLine();
+            if (args.Length >= 1)
+            {
+                startUrl = args[0];
+            }
+            //加入
+            craw.Url.Add(startUrl, false);
+            //开始
+            new Thread(craw.Crawl).Start();
+        }
+
     }
 }
+
