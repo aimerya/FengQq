@@ -1,0 +1,2 @@
+D:\Project\test\CSharpHomework\Homework8\OrderManage\OrderManage\obj\Debug\OrderManage.csprojAssemblyReference.cache
+D:\Project\test\CSharpHomework\Homework8\OrderManage\OrderManage\obj\Debug\OrderManage.csproj.CoreCompileInputs.cache
